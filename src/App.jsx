@@ -7,15 +7,26 @@ const API_WEATHER = `http://api.weatherapi.com/v1/current.json?key=${import.meta
 function App() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({
+    error: false,
+    message: ""
+  });
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log("submit");
     setLoading(true);
+    setError({
+      error: false,
+      message: ""
+    });
     try {
       if (city.trim() === "") throw {message: "Complete el campo ciudad"};
     }catch(error){
       console.log(error);
+      setError({
+        error: true,
+        message: error.message
+      });
     }finally{
       setLoading(false);
     }
@@ -24,7 +35,7 @@ function App() {
   return (
     <Container maxWidth="xs" sx={{ mt: 2 }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom>
-        Weater App
+        App de clima!
       </Typography>
       <Box 
         sx={{ display: "grid", gap: 2 }}
@@ -41,6 +52,8 @@ function App() {
           fullWidth
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          error={error.error}
+          helperText={error.message}
         />
         <LoadingButton
           type='submit'
