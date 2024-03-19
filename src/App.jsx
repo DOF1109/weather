@@ -11,6 +11,14 @@ function App() {
     error: false,
     message: ""
   });
+  const [weather, setWeather] = useState({
+    city: "",
+    country: "",
+    temp: "",
+    condition: "",
+    icon: "",
+    conditionText: ""
+  });
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -21,11 +29,23 @@ function App() {
     });
     try {
       if (city.trim() === "") throw {message: "Complete el campo ciudad"};
+      const response = await fetch(`${API_WEATHER}${city}`);
+      const data = await response.json();
+
+      if (data.error) throw {message: data.error.message};
+      setWeather({
+        city: data.location.name,
+        country: data.location.country,
+        temp: data.current.temp_c,
+        condition: data.current.condition,
+        icon: data.current.condition.icon,
+        conditionText: data.current.condition.text
+      });
     }catch(error){
-      console.log(error);
+      console.log(error.message);
       setError({
         error: true,
-        message: error.message
+        message: "Intente nuevamente con una ciudad válida"
       });
     }finally{
       setLoading(false);
@@ -64,6 +84,43 @@ function App() {
           Buscar
         </LoadingButton>
       </Box>
+
+      { weather.city && (
+        <Box
+          sx={{
+            mt: 2,
+            display: "grid",
+            gap: 2,
+            textAlign: "center"
+          }}
+        >
+          <Typography
+            variant='h4'
+            component='h2'
+          >
+            {weather.city}, {weather.country}
+          </Typography>
+          <Box
+            component='img'
+            alt={weather.conditionText}
+            src={weather.icon}
+            sx={{ m: "0 auto"}}
+          >
+            <Typography
+              variant='h5'
+              component='h3'
+            >
+              {weather.temp} °C
+            </Typography>
+            <Typography
+              variant='h6'
+              component='h4'
+            >
+              {weather.conditionText}
+            </Typography>
+          </Box>
+        </Box>
+      )}
 
       <Typography
         textAlign="center"
